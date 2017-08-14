@@ -22,6 +22,8 @@ import android.util.Log;
 import android.view.Menu;
 import android.widget.TextView;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -49,8 +51,13 @@ public class BleUartActivity extends AppCompatActivity{
             switch (msg.what){
 
                 case MSG_READ_FROM_REMOTE:
-                    ;
-                    textView.append(msg.getData().getString("read_msg"));
+                    SimpleDateFormat formatter = new SimpleDateFormat(
+                            "HH:mm:ss ");
+                    Date curDate = new Date(System.currentTimeMillis());// 获取当前时间
+                    String TimeStr = formatter.format(curDate);
+
+                    String DisplayStr = "[" + TimeStr + "] " + msg.getData().getString("read_msg")+"\n";
+                    textView.append(DisplayStr);
 
             }
         }
