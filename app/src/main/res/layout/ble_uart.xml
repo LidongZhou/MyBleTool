@@ -1,15 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
-    tools:context="com.htc.mybletool.BleUartActivity">
+<!-- 该文件是OtherActivity.java文件所使用的布局文件 -->
+<RelativeLayout  xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    >
 
     <TextView
         android:layout_width="match_parent"
-        android:layout_height="20dp"
+        android:layout_height="wrap_content"
         android:id="@+id/uart_show_connect_info"
         android:background="#A0BF7C"
         android:textStyle="bold"/>
@@ -19,12 +18,41 @@
         android:layout_height="match_parent"
         android:background="#000000"
         android:fillViewport="false"
-        android:layout_marginTop="20dp">
+        android:layout_below="@id/uart_show_connect_info"
+        android:layout_above="@+id/button_send_layout">
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textIsSelectable="true"
         android:id="@+id/uart_show_remote_info" />
     </ScrollView>
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#FFFFFF"
+        android:layout_alignParentBottom="true"
+        android:id="@+id/button_send_layout">
 
-</android.support.design.widget.CoordinatorLayout>
+        <EditText
+            android:id="@+id/button_edit_text"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:maxLines="2"
+            android:layout_weight="3"
+            />
+
+        <Button
+            android:id="@+id/button_send"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:textSize="12sp"
+            android:text="发送"
+            android:textStyle="bold"
+            android:layout_weight="3"
+            />
+    </LinearLayout>
+
+</RelativeLayout >

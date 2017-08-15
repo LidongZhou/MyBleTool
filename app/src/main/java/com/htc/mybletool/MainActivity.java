@@ -38,6 +38,7 @@ public class MainActivity extends AppCompatActivity {
 
                     intent.putExtra("address", msg.getData().getString("address"));
                     startActivityForResult(intent, REQUEST_CODE);
+                    finish();
                     break;
 
             }

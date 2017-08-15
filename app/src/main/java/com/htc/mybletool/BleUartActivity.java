@@ -18,6 +18,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.View;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import java.text.SimpleDateFormat;
@@ -45,8 +49,13 @@ public class BleUartActivity extends AppCompatActivity{
 
     public static final int MSG_READ_FROM_REMOTE = 1;
     public static final int MSG_READ_REMOTE_RSSI = 2;
+    public static final int MSG_SEND_TO_REMOTE = 3;
+
     public TextView textView;
     public TextView textConnectView;
+    public EditText mEditText;
+
+    private BluetoothGattCharacteristic mGattCharacteristic;
 
     Handler mHandler = new Handler(){
 
@@ -61,7 +70,7 @@ public class BleUartActivity extends AppCompatActivity{
                     Date curDate = new Date(System.currentTimeMillis());// 获取当前时间
                     String TimeStr = formatter.format(curDate);
 
-                    String DisplayStr = "[" + TimeStr + "] " + msg.getData().getString("read_msg")+"\n";
+                    String DisplayStr = "[" + TimeStr + "][R] " + msg.getData().getString("read_msg")+"\n";
                     textView.append(DisplayStr);
 
                     break;
@@ -72,6 +81,15 @@ public class BleUartActivity extends AppCompatActivity{
                     //    getSupportActionBar().setTitle("RSSI:"+rssi+"");
                     textConnectView.setText("Connected "+"      RSSI:"+rssi);
                     mBluetoothGatt.readRemoteRssi();
+                    break;
+                case MSG_SEND_TO_REMOTE:
+                    SimpleDateFormat formatter_send = new SimpleDateFormat(
+                            "HH:mm:ss ");
+                    Date curDate_send = new Date(System.currentTimeMillis());// 获取当前时间
+                    String TimeStr_send = formatter_send.format(curDate_send);
+
+                    String DisplayStr_send = "[" + TimeStr_send + "][S] " + msg.getData().getString("send_msg")+"\n";
+                    textView.append(DisplayStr_send);
 
             }
         }
@@ -93,6 +111,29 @@ public class BleUartActivity extends AppCompatActivity{
         Bundle bundle = intent.getExtras();
         String address = bundle.getString("address");
         connectBleDevice(address);
+
+        mEditText = (EditText)findViewById(R.id.button_edit_text);
+        Button mButton = (Button)findViewById(R.id.button_send);
+        mButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(!mEditText.getText().toString().equals("")) {
+                    mGattCharacteristic.setValue(mEditText.getText().toString() + "\n");
+                    mBluetoothGatt.writeCharacteristic(mGattCharacteristic);
+                    Message msg = new Message();
+                    Bundle mBundler = new Bundle();
+                    mBundler.putString("send_msg", mEditText.getText().toString());
+                    msg.what = MSG_SEND_TO_REMOTE;
+                    msg.setData(mBundler);
+                    mHandler.sendMessage(msg);
+
+                    InputMethodManager imm = (InputMethodManager)
+                            getSystemService(Context.INPUT_METHOD_SERVICE);
+                    mEditText.setText("");
+                    imm.hideSoftInputFromWindow(mEditText.getWindowToken(), 0);
+                }
+            }
+        });
     }
 
     @Override
@@ -188,6 +229,7 @@ public class BleUartActivity extends AppCompatActivity{
 
                     Log.e(TAG, "---->char uuid:" + gattCharacteristic.getUuid());
                     if (gattCharacteristic.getUuid().toString().equals(UUID_CHAR6)) {
+                        mGattCharacteristic = gattCharacteristic;
                         mBluetoothGatt.setCharacteristicNotification(gattCharacteristic, true);
                         BluetoothGattDescriptor descriptor = gattCharacteristic
                                 .getDescriptor(CLIENT_CHARACTERISTIC_CONFIG_DESCRIPTOR_UUID);
@@ -261,4 +303,5 @@ public class BleUartActivity extends AppCompatActivity{
         }
     };
 /*************************************Connect remote device end  **********************************/
+
 }
