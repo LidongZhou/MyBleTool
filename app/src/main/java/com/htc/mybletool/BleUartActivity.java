@@ -1,13 +1,11 @@
 package com.htc.mybletool;
 
-import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCallback;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattDescriptor;
-import android.bluetooth.BluetoothGattServer;
 import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothManager;
 import android.content.Context;
@@ -17,9 +15,9 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.widget.TextView;
 
 import java.text.SimpleDateFormat;
@@ -37,11 +35,18 @@ public class BleUartActivity extends AppCompatActivity{
     public BluetoothGatt mBluetoothGatt;
     public String mBluetoothDeviceAddress;
 
+    public static String UUID_HERATRATE = "00002a37-0000-1000-8000-00805f9b34fb";
+    public static String UUID_TEMPERATURE = "00002a1c-0000-1000-8000-00805f9b34fb";
     public static String UUID_CHAR6 = "0000fff6-0000-1000-8000-00805f9b34fb";
+    public static String UUID_KEY_DATA = "0000ffe1-0000-1000-8000-00805f9b34fb";
+
     public static final UUID CLIENT_CHARACTERISTIC_CONFIG_DESCRIPTOR_UUID = UUID
             .fromString("00002902-0000-1000-8000-00805f9b34fb");
+
     public static final int MSG_READ_FROM_REMOTE = 1;
+    public static final int MSG_READ_REMOTE_RSSI = 2;
     public TextView textView;
+    public TextView textConnectView;
 
     Handler mHandler = new Handler(){
 
@@ -59,6 +64,15 @@ public class BleUartActivity extends AppCompatActivity{
                     String DisplayStr = "[" + TimeStr + "] " + msg.getData().getString("read_msg")+"\n";
                     textView.append(DisplayStr);
 
+                    break;
+
+                case MSG_READ_REMOTE_RSSI:
+                    int rssi = msg.getData().getInt("RSSI");
+                 //   if(rssi <0)
+                    //    getSupportActionBar().setTitle("RSSI:"+rssi+"");
+                    textConnectView.setText("Connected "+"      RSSI:"+rssi);
+                    mBluetoothGatt.readRemoteRssi();
+
             }
         }
     };
@@ -67,7 +81,11 @@ public class BleUartActivity extends AppCompatActivity{
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.ble_uart);
-        textView = (TextView) findViewById(R.id.uart_show_info);
+
+        textConnectView = (TextView) findViewById(R.id.uart_show_connect_info);
+        textConnectView.setTextColor(Color.RED);
+
+        textView = (TextView) findViewById(R.id.uart_show_remote_info);
         textView.setTextColor(Color.GREEN);
         bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
         mBluetoothAdapter = bluetoothManager.getAdapter();
@@ -90,6 +108,14 @@ public class BleUartActivity extends AppCompatActivity{
     @Override
     protected void onPause() {
         super.onPause();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        //return super.onCreateOptionsMenu(menu);
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_main, menu);
+        return true;
     }
 
     /*************************************Connect remote device start**********************************/
@@ -137,6 +163,9 @@ public class BleUartActivity extends AppCompatActivity{
             try {
                 Log.e(TAG, "Connected");
                 mBluetoothGatt.discoverServices();
+                Message msg = new Message();
+                msg.what = MSG_READ_REMOTE_RSSI;
+                mHandler.sendMessage(msg);
 
             } catch (Exception e) {
                 e.printStackTrace();
@@ -216,7 +245,13 @@ public class BleUartActivity extends AppCompatActivity{
         @Override
         public void onReadRemoteRssi(BluetoothGatt gatt, int rssi, int status) {
             super.onReadRemoteRssi(gatt, rssi, status);
-            Log.e(TAG, "onReadRemoteRssi");
+            Log.e(TAG, "onReadRemoteRssi "+rssi);
+            Message msg = new Message();
+            msg.what = MSG_READ_REMOTE_RSSI;
+            Bundle mBundle = new Bundle();
+            mBundle.putInt("RSSI", rssi);
+            msg.setData(mBundle);
+            mHandler.sendMessageDelayed(msg,1000);
         }
 
         @Override

@@ -2,23 +2,17 @@ package com.htc.mybletool;
 
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothGatt;
-import android.bluetooth.BluetoothGattCallback;
-import android.bluetooth.BluetoothGattCharacteristic;
-import android.bluetooth.BluetoothGattDescriptor;
+
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.le.BluetoothLeScanner;
 import android.bluetooth.le.ScanCallback;
 import android.bluetooth.le.ScanResult;
 import android.content.Context;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
@@ -40,25 +34,11 @@ public class BluetoothLeClass extends Activity {
     private List<HashMap<String, Object>> data;
     private HashMap<String, Object> item;
     private ListView  mBleListView;
-
-    public String mBluetoothDeviceAddress;
-    public BluetoothGatt mBluetoothGatt;
     private Handler mHandler;
-
-    private final static int REQUEST_CODE = 1;
 
     public BluetoothLeClass(Activity mContext, Handler mHandler) {
         this.mContext = mContext;
         this.mHandler = mHandler;
-    }
-
-    public void initBluetoothLeClass(Activity mContext) {
-        this.mContext = mContext;
-    }
-
-    public BluetoothAdapter getluetoothAdapter() {
-
-        return  mBluetoothAdapter;
     }
 
     public  void initBleScanList(ListView  mBleListView){
@@ -77,7 +57,6 @@ public class BluetoothLeClass extends Activity {
                 mBundle.putString("address" ,data.get(i).get("address").toString());
                 msg.setData(mBundle);
                 mHandler.sendMessage(msg);
-               // connectBleDevice(data.get(i).get("address").toString());
             }
         });
     }
@@ -144,7 +123,7 @@ public class BluetoothLeClass extends Activity {
                     +"  "+result.getDevice().getName()
                     +" "+result.getDevice().getUuids());
             for(HashMap<String, Object> mItem : data){
-                if (mItem.get("address").equals(result.getDevice().getAddress()))
+                if (mItem.get("address").equals(result.getDevice().getAddress()) ||result.getDevice().getName()==null )
                     return;
 
             }
