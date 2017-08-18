@@ -41,7 +41,7 @@ public class BleUartActivity extends AppCompatActivity{
 
     public static String UUID_HERATRATE = "00002a37-0000-1000-8000-00805f9b34fb";
     public static String UUID_TEMPERATURE = "00002a1c-0000-1000-8000-00805f9b34fb";
-    public static String UUID_CHAR6 = "0000fff6-0000-1000-8000-00805f9b34fb";
+    public static String UUID_CHAR7 = "0000fff7-0000-1000-8000-00805f9b34fb";
     public static String UUID_KEY_DATA = "0000ffe1-0000-1000-8000-00805f9b34fb";
 
     public static final UUID CLIENT_CHARACTERISTIC_CONFIG_DESCRIPTOR_UUID = UUID
@@ -222,13 +222,15 @@ public class BleUartActivity extends AppCompatActivity{
             Log.e(TAG, "onServicesDiscovered");
 
             for( BluetoothGattService gattService  :gatt.getServices()){
-                Log.e(TAG, gattService.getUuid().toString());
+                Log.e(TAG, "service: "+gattService.getUuid().toString());
                 List<BluetoothGattCharacteristic> gattCharacteristics = gattService
                         .getCharacteristics();
                 for (final BluetoothGattCharacteristic gattCharacteristic : gattCharacteristics) {
 
                     Log.e(TAG, "---->char uuid:" + gattCharacteristic.getUuid());
-                    if (gattCharacteristic.getUuid().toString().equals(UUID_CHAR6)) {
+                    Log.e(TAG, "---->getPermissions" + gattCharacteristic.getPermissions()
+                            +" getDescriptors"+gattCharacteristic.getDescriptors());
+                    if (gattCharacteristic.getUuid().toString().equals(UUID_CHAR7)) {
                         mGattCharacteristic = gattCharacteristic;
                         mBluetoothGatt.setCharacteristicNotification(gattCharacteristic, true);
                         BluetoothGattDescriptor descriptor = gattCharacteristic
